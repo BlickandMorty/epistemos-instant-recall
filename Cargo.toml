@@ -1,0 +1,51 @@
+[package]
+name = "epistemos-shadow"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Contextual Shadows Free V1 lexical note retrieval engine."
+
+[lib]
+name = "epistemos_shadow"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[features]
+default = ["free-lexical"]
+# The sole Free V1 build closure: local Tantivy/BM25 over note records.
+free-lexical = []
+# Future-edition semantic retrieval must be selected explicitly without the
+# Free default feature, so its dependencies cannot enter the Free dylib.
+semantic = ["dep:model2vec-rs", "dep:usearch", "dep:once_cell", "dep:rustc-hash"]
+
+[dependencies]
+# Deterministic lexical/index persistence dependencies.
+parking_lot = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tantivy = "0.22"
+
+# Future-edition-only dependencies. They remain absent from the
+# `--no-default-features --features free-lexical` resolution.
+usearch = { version = "2.24", optional = true }
+model2vec-rs = { version = "0.1.4", optional = true }
+once_cell = { version = "1", optional = true }
+rustc-hash = { version = "2", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+# Canonical release profile per dpp §1.1 Task 0.4 (Wave 2.4).
+# SAFETY: epistemos-shadow MUST use panic = "unwind" because the C ABI
+# surface (shadow_insert / shadow_remove / shadow_search / shadow_flush /
+# shadow_stats) wraps every entry in std::panic::catch_unwind so a
+# panic in the indexing or search path can't tear down the Swift host.
+panic = "unwind"
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+opt-level = 3
+debug = false
+overflow-checks = false
