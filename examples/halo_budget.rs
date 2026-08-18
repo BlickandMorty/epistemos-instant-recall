@@ -17,10 +17,11 @@
 //! fail on the first cold pass).
 
 use std::error::Error;
+use std::time::Instant;
 
-use epistemos_shadow::backend::RealBackend;
-use epistemos_shadow::backend::ShadowBackend;
-use epistemos_shadow::ShadowDocument;
+use epistemos_instant_recall::ShadowDocument;
+use epistemos_instant_recall::backend::RealBackend;
+use epistemos_instant_recall::backend::ShadowBackend;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let backend = match RealBackend::new() {
@@ -48,10 +49,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         origin_vault_key: None,
     })?;
 
-    let _hits = backend.search("revenue", "note", 5)?;
-    let timings = backend.last_timings();
-
-    let json = serde_json::to_string(&timings)?;
-    println!("{json}");
+    let started = Instant::now();
+    let hits = backend.search_notes("revenue", 5)?;
+    println!(
+        "{{\"status\":\"ok\",\"hits\":{},\"elapsed_us\":{}}}",
+        hits.len(),
+        started.elapsed().as_micros()
+    );
     Ok(())
 }

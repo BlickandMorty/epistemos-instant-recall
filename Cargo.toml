@@ -1,12 +1,18 @@
 [package]
-name = "epistemos-shadow"
-version = "0.1.0"
+name = "epistemos-instant-recall"
+version = "0.2.0"
 edition = "2024"
 publish = false
-description = "Contextual Shadows Free V1 lexical note retrieval engine."
+description = "Local-first fused search and ambient recall extracted from Epistemos."
+license = "Apache-2.0"
+repository = "https://github.com/BlickandMorty/epistemos-instant-recall"
+
+[[bin]]
+name = "recall"
+path = "src/main.rs"
 
 [lib]
-name = "epistemos_shadow"
+name = "epistemos_instant_recall"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [features]
@@ -25,6 +31,7 @@ serde_json = "1"
 sha2 = "0.10"
 thiserror = "2"
 tantivy = "0.22"
+walkdir = "2"
 
 # Future-edition-only dependencies. They remain absent from the
 # `--no-default-features --features free-lexical` resolution.

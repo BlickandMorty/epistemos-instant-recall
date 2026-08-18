@@ -299,12 +299,14 @@ mod tests {
         let dense = vec![pair("composite", 0.9), pair("prime", 0.5)];
         let lexical: Vec<(String, f32)> = vec![];
         let canonical = rrf_fuse(&dense, &lexical, RRF_K_DEFAULT, 10);
-        assert_eq!(canonical[0].0, "composite", "without boost, first-seen wins");
+        assert_eq!(
+            canonical[0].0, "composite",
+            "without boost, first-seen wins"
+        );
 
         let mut boosts: FxHashMap<String, f32> = FxHashMap::default();
         boosts.insert("prime".to_string(), 0.01);
-        let boosted =
-            rrf_fuse_with_tier_boosts(&dense, &lexical, RRF_K_DEFAULT, 10, &boosts);
+        let boosted = rrf_fuse_with_tier_boosts(&dense, &lexical, RRF_K_DEFAULT, 10, &boosts);
         assert_eq!(
             boosted[0].0, "prime",
             "tier boost MUST move prime claim above tied composite"
@@ -321,8 +323,7 @@ mod tests {
         let lexical = vec![pair("winner", 1.0), pair("gap_doc", 0.7)];
         let mut boosts: FxHashMap<String, f32> = FxHashMap::default();
         boosts.insert("gap_doc".to_string(), -0.05);
-        let boosted =
-            rrf_fuse_with_tier_boosts(&dense, &lexical, RRF_K_DEFAULT, 10, &boosts);
+        let boosted = rrf_fuse_with_tier_boosts(&dense, &lexical, RRF_K_DEFAULT, 10, &boosts);
         assert_eq!(boosted[0].0, "winner");
         assert_eq!(boosted[1].0, "gap_doc");
         assert!(

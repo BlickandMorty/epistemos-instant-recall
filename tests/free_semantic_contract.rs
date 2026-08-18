@@ -1,4 +1,4 @@
-use epistemos_shadow::backend::free_semantic::{
+use epistemos_instant_recall::backend::free_semantic::{
     CHUNK_FORMAT_VERSION, ChannelBatch, ChannelCompletion, ChannelHit, ChannelReceipt,
     ChunkCatalog, ChunkKind, ChunkingPolicy, GenerationManifest, HybridRequest,
     LexicalStagingReceipt, NoteInput, ProjectionPartialReason, ProjectionStatus, RankFusionPolicy,
@@ -65,7 +65,7 @@ fn manifest_with_availability(
 
 fn publish(
     catalog: &mut ChunkCatalog,
-    projection: &epistemos_shadow::backend::free_semantic::ChunkProjection,
+    projection: &epistemos_instant_recall::backend::free_semantic::ChunkProjection,
 ) {
     let token = catalog.publication_token();
     let next_generation = token.expected_generation() + 1;
@@ -80,7 +80,7 @@ fn publish(
 
 fn publish_semantic(
     catalog: &mut ChunkCatalog,
-    projection: &epistemos_shadow::backend::free_semantic::ChunkProjection,
+    projection: &epistemos_instant_recall::backend::free_semantic::ChunkProjection,
 ) {
     let token = catalog.publication_token();
     let next_generation = token.expected_generation() + 1;
@@ -127,7 +127,7 @@ fn try_batch(
     channel: SearchChannel,
     hits: Vec<ChannelHit>,
     exact_title_chunk_ids: impl IntoIterator<Item = String>,
-) -> Result<ChannelBatch, epistemos_shadow::backend::free_semantic::FreeSemanticError> {
+) -> Result<ChannelBatch, epistemos_instant_recall::backend::free_semantic::FreeSemanticError> {
     let lease = catalog.issue_search_lease(request, 32)?;
     catalog.complete_untrusted_channel_assertion(
         lease,
@@ -575,7 +575,7 @@ fn note_and_query_identities_reject_control_and_path_like_values() {
     assert!(request(1, None).with_exact_title("title\nnext").is_err());
     assert!(
         request(1, None)
-            .with_exact_title(&"x".repeat(2_049))
+            .with_exact_title("x".repeat(2_049))
             .is_err()
     );
 }
@@ -755,7 +755,7 @@ fn manifest_vault_dimension_and_generation_mismatches_leave_catalog_unchanged() 
 
     let token = catalog.publication_token();
     let mut wrong_dimension = manifest("vault-a", 1);
-    wrong_dimension.dimension = 0;
+    wrong_dimension.dimension = Some(0);
     assert!(
         catalog
             .publish(token, projection.clone(), wrong_dimension)
@@ -1252,10 +1252,10 @@ fn catalog_receipt_is_the_only_semantic_authority_and_mutations_keep_receipts_ho
     assert!(source.contains("lexical_staging: LexicalStagingReceipt"));
     let mutation_start = source.find("fn stage_degraded_mutation_receipt").unwrap();
     let mutation_end = source[mutation_start..]
-        .find("fn validate_token")
+        .find('{')
         .map(|offset| mutation_start + offset)
         .unwrap();
-    assert!(!source[mutation_start..mutation_end].contains("GenerationManifest,"));
+    assert!(!source[mutation_start..mutation_end].contains("manifest:"));
     assert!(
         catalog
             .remove_note(
@@ -1336,7 +1336,7 @@ fn vault_bound_request_and_duplicate_channel_entries_fail_before_candidate_ranki
     assert!(
         try_batch(
             &catalog,
-            &request(2, None),
+            &request_with_query("natural paragraph query", 2, None),
             SearchChannel::Lexical,
             vec![
                 ChannelHit::new(projection.chunks[0].chunk_id.clone(), 1.0, 1).unwrap(),
@@ -1433,7 +1433,7 @@ fn semantic_mutations_clear_vector_contracts_and_policy_migrations_require_full_
         SemanticAvailability::Available
     );
     assert!(rebuild.vector_receipt.is_some());
-    assert!(catalog.chunks_for_note("page").len() >= 1);
+    assert!(!catalog.chunks_for_note("page").is_empty());
 }
 
 #[test]

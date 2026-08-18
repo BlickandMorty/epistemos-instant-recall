@@ -4,6 +4,12 @@
 //! loader. It defines the note-only data and ranking contracts that every
 //! eventual local embedding candidate must obey. It is not production semantic
 //! search until the evidence-gated candidate selection and integration land.
+#![allow(
+    clippy::collapsible_if,
+    clippy::redundant_closure,
+    clippy::too_many_arguments,
+    clippy::unnecessary_map_or
+)]
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -2694,24 +2700,13 @@ mod generation_contract_tests {
             manifest: None,
         };
         let before = catalog.clone();
-        let manifest = GenerationManifest::new(
-            "vault-a",
-            1,
-            Some("sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into()),
-            Some(256),
-            CHUNK_FORMAT_VERSION,
-            1,
-            None,
-            RankFusionPolicy::new(1, 60).unwrap(),
-            Some(VectorNormalization::InjectedCosineL2),
-            SemanticAvailability::MissingAsset,
+        let lexical_staging = LexicalStagingReceipt::new(
             "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            None,
         )
         .unwrap();
 
         assert_eq!(
-            catalog.reset(catalog.publication_token(), manifest),
+            catalog.reset(catalog.publication_token(), lexical_staging),
             Err(FreeSemanticError::GenerationOverflow)
         );
         assert_eq!(catalog, before);

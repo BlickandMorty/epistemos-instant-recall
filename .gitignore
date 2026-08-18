@@ -1,0 +1,4 @@
+/target/
+/.recall-index/
+*.tmp
+*.log

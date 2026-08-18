@@ -6,6 +6,7 @@
 //! Swift side wraps the raw handle in a `final class` whose `init`
 //! takes ownership and `deinit` releases — single-owner semantics
 //! enforced by Swift's reference-counting at the binding edge.
+#![allow(clippy::let_and_return)]
 //!
 //! This module ships the Rust-side foundation as an ADDITIVE layer:
 //! the new `shadow_handle_*` FFI exports work alongside the
@@ -46,15 +47,15 @@
 //! `ShadowBackend` trait the legacy global API uses — so semantics
 //! are identical, only ownership changes.
 
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{CStr, CString, c_char};
 use std::panic::{self, AssertUnwindSafe};
 use std::path::Path;
 use std::ptr;
 use std::sync::Arc;
 
+use crate::ShadowDocument;
 use crate::backend::{RealBackend, ShadowBackend};
 use crate::error::ShadowError;
-use crate::ShadowDocument;
 
 /// Opaque handle to a real backend. The Rust side never exposes
 /// the inner `RealBackend` to Swift directly — only `*const

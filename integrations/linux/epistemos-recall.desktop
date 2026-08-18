@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Epistemos Instant Recall
+Comment=Index a folder with the local recall engine
+Exec=recall index %F
+Terminal=true
+Categories=Utility;

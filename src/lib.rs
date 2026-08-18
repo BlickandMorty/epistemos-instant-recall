@@ -40,11 +40,13 @@
 pub mod backend;
 pub mod error;
 pub mod honest_handle;
+pub mod portable;
 #[cfg(feature = "semantic")]
 pub mod state;
 
 pub use backend::ShadowBackend;
 pub use error::ShadowError;
+pub use portable::{IndexReport, RecallEngine, RecallMode, RecallResult};
 
 // ---------------------------------------------------------------------------
 // Public domain types — match the Swift reference at
@@ -118,7 +120,7 @@ pub struct ShadowStats {
 // in-memory backend only before that open succeeds.
 
 #[cfg(feature = "semantic")]
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{CStr, CString, c_char};
 #[cfg(feature = "semantic")]
 use std::ptr;
 

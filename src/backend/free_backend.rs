@@ -9,8 +9,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Mutex, RwLock};
 use std::time::Instant;
 
-use crate::backend::lexical_index::LexicalIndex;
 use crate::backend::ShadowBackend;
+use crate::backend::lexical_index::LexicalIndex;
 use crate::error::ShadowError;
 use crate::{ShadowDocument, ShadowHit, ShadowStats};
 
@@ -288,14 +288,16 @@ mod tests {
         let hits = backend.search_notes("revenue", 5).unwrap();
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].source, "lexical");
-        assert!(backend
-            .insert_document(ShadowDocument {
-                doc_id: "legacy".into(),
-                title: "Archived".into(),
-                body: "Never index this in Free.".into(),
-                domain: "chat".into(),
-                origin_vault_key: None,
-            })
-            .is_err());
+        assert!(
+            backend
+                .insert_document(ShadowDocument {
+                    doc_id: "legacy".into(),
+                    title: "Archived".into(),
+                    body: "Never index this in Free.".into(),
+                    domain: "chat".into(),
+                    origin_vault_key: None,
+                })
+                .is_err()
+        );
     }
 }
